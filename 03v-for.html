@@ -87,28 +87,15 @@
                     this.total = 0
                     // this.total += this.count[0] * this.product[0]['price']
                     // this.total += this.count[1] * this.product[1]['price']
-                    for ( countIndex in this.count) {
+                    
+                    for ( const countIndex in this.product) {
+                        // if(!this.product[countIndex]['price']) return
                         this.total += this.count[countIndex] * this.product[countIndex]['price']
                     }
                     //正整數
                     this.total = parseInt(this.total )
+                    //四捨五入小數點後第二位 -> 變成字串
                     // this.total = this.total.toFixed(2)
-
-                    // //想法1
-                    // this.count.map((item, index) => {
-                    //     // item：商品數量
-                    //     // index: 陣列位置
-                    //     //    this.product[index]：商品資訊
-                    //     //    this.product[index]['price']：商品價錢
-                    //     console.log(this.product[index]['price'] + ':' +item);
-                    // })
-                    //想法2
-                    // this.product.map((item, index) => {
-                    //     // item.price: 商品價錢
-                    //     // index: 商品資訊陣列位置
-                    //     // this.count[index]：商品數量
-                    //     console.log(this.count[index] + ':' +item.price);
-                    // })
                 }
             }
         }).mount("#app")

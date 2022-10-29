@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>計算機</title>
+</head>
+<body>
+    
+    <div id="app">
+        <div>
+            <ol>
+                <li>把按鈕先做出來</li>
+                <li>按鈕按的數字或.透過keyin組起來</li>
+            </ol>
+            <div class="keyin">
+                {{keyin}}
+            </div>
+        </div>
+        <div class="numBtns">
+            <button 
+                v-for="num in 9"
+                :key="num"
+                @click="keyin += num.toString()"
+            >
+                {{num}}
+            </button>
+            <button @click="keyin = ''">C</button>
+            <button @click="keyin += '0'">
+                0
+            </button>
+            <button @click="keyin += '.'">
+                .
+            </button>
+        </div>
+    </div>
+    <script src="https://unpkg.com/vue@next"></script>
+    <script>
+        Vue.createApp({
+            data(){
+                return {
+                    keyin: '',
+                    result: ''
+                }
+            }
+        }).mount("#app")
+    </script>
+</body>
+</html>
+<style>
+#app{
+    display: inline-flex;
+}
+.numBtns{
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    width: 12rem;
+}
+.numBtns button{
+    flex-basis: 3rem;
+    height: 3rem;
+    margin: .25rem;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+.numBtns button:hover{
+    background-color: #999;
+}
+.keyin{
+    background-color: #ddd;
+}
+</style>
