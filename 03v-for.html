@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1</title>
+</head>
+<body>
+    <div id="app">
+        <!-- 變數 in 物件/陣列 -->
+        <div class="pagination">
+            <button v-for="page in 10" :key="page">{{page}}</button>
+        </div>
+        <div class="productContainer">
+            <div v-for="(item, index) in product" :key="item.id">
+                <p>{{item.title}}</p>
+                <img :src="item.image" v-bind:alt="item.title">
+                <p>{{item.price}}元</p>
+                <div>
+                    <button v-on:click="reduceCount(index)">-</button>
+                    <input type="number" min="0" v-model="count[index]">
+                    <button @click="addCount(index, 1)">+</button>
+                </div>
+            </div>
+            <p>總計：{{total}}元</p> 
+        </div>
+    </div>
+    <script src="https://unpkg.com/vue@next"></script>
+    <script>
+        Vue.createApp({
+            data(){
+                return {
+                    product: [
+                        {
+                            "id": 1,
+                            "title": "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops",
+                            "price": 109.95,
+                            "description": "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday",
+                            "category": "men's clothing",
+                            "image": "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg",
+                            "rating": {
+                                "rate": 3.9,
+                                "count": 120
+                            }
+                        },
+                        {
+                            "id": 2,
+                            "title": "Mens Casual Premium Slim Fit T-Shirts ",
+                            "price": 22.3,
+                            "description": "Slim-fitting style, contrast raglan long sleeve, three-button henley placket, light weight & soft fabric for breathable and comfortable wearing. And Solid stitched shirts with round neck made for durability and a great fit for casual fashion wear and diehard baseball fans. The Henley style round neckline includes a three-button placket.",
+                            "category": "men's clothing",
+                            "image": "https://fakestoreapi.com/img/71-3HjGNDUL._AC_SY879._SX._UX._SY._UY_.jpg",
+                            "rating": {
+                                "rate": 4.1,
+                                "count": 259
+                            }
+                        },
+                    ],
+                    count: [],
+                    total: 0
+                }
+            },
+            mounted() {
+                //初始化商品數量
+                for ( item in this.product) {
+                    this.count.push(0)
+                }
+                // this.product.map(item => {
+                //     this.count.push({
+                //         id: item.id,
+                //         count: 0
+                //     })
+                // })
+            },
+            methods:{
+                addCount(index){
+                    this.count[index] += 1
+                    this.sumTotal()
+                },
+                reduceCount(index){
+                    if(this.count[index] <= 0) return
+                    this.count[index] -= 1
+                    this.sumTotal()
+                },
+                sumTotal(){
+                    this.total = 0
+                    // this.total += this.count[0] * this.product[0]['price']
+                    // this.total += this.count[1] * this.product[1]['price']
+                    for ( countIndex in this.count) {
+                        this.total += this.count[countIndex] * this.product[countIndex]['price']
+                    }
+                    //正整數
+                    this.total = parseInt(this.total )
+                    // this.total = this.total.toFixed(2)
+
+                    // //想法1
+                    // this.count.map((item, index) => {
+                    //     // item：商品數量
+                    //     // index: 陣列位置
+                    //     //    this.product[index]：商品資訊
+                    //     //    this.product[index]['price']：商品價錢
+                    //     console.log(this.product[index]['price'] + ':' +item);
+                    // })
+                    //想法2
+                    // this.product.map((item, index) => {
+                    //     // item.price: 商品價錢
+                    //     // index: 商品資訊陣列位置
+                    //     // this.count[index]：商品數量
+                    //     console.log(this.count[index] + ':' +item.price);
+                    // })
+                }
+            }
+        }).mount("#app")
+    </script>
+</body>
+</html>
+<style>
+    .productContainer{
+        display: inline-flex;
+    }
+    img{
+        height: 5rem;
+    }
+</style>
