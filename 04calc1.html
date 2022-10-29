@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>計算機</title>
+    <title>計算機1</title>
 </head>
 <body>
     
@@ -19,20 +19,10 @@
             </div>
         </div>
         <div class="numBtns">
-            <button 
-                v-for="num in 9"
-                :key="num"
-                @click="keyin += num.toString()"
-            >
-                {{num}}
-            </button>
-            <button @click="keyin = ''">C</button>
-            <button @click="keyin += '0'">
-                0
-            </button>
-            <button @click="keyin += '.'">
-                .
-            </button>
+            <button v-for="num in 9" :key="num" @click="keyNumber(num)">{{num}}</button>
+            <button @click="clear">AC</button>
+            <button @click="keyNumber(0)">0</button>
+            <button @click="keyDote">.</button>
         </div>
     </div>
     <script src="https://unpkg.com/vue@next"></script>
@@ -40,8 +30,20 @@
         Vue.createApp({
             data(){
                 return {
-                    keyin: '',
-                    result: ''
+                    keyin: ''
+                }
+            },
+            methods: {
+                keyNumber(number){
+                    if (this.keyin == "0" && number == "0") return //如果keyin初始值為0則輸入number0不繼續下去
+                    this.keyin += number.toString() // 為了二位數以上數值輸入
+                },
+                keyDote(){
+                    if (this.keyin.includes(".")) return //如果已經有小數點就不繼續
+                    this.keyin += '.'
+                },
+                clear(){
+                    this.keyin = ''
                 }
             }
         }).mount("#app")
@@ -58,16 +60,20 @@
     justify-content: space-around;
     width: 12rem;
 }
-.numBtns button{
-    flex-basis: 3rem;
-    height: 3rem;
+button{
     margin: .25rem;
     border-radius: 50%;
     font-size: 1.5rem;
     cursor: pointer;
+    background-color: #eee;
+    box-shadow: -6px -6px 9px 0px white, 6px 6px 9px rgba(0, 0, 0, 0.4);
 }
-.numBtns button:hover{
+button:hover{
     background-color: #999;
+}
+.numBtns button{
+    flex-basis: 3rem;
+    height: 3rem;
 }
 .keyin{
     background-color: #ddd;
