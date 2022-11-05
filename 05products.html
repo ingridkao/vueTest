@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1</title>
+</head>
+<body>
+    <div id="app">
+        <!-- 變數 in 物件/陣列 -->
+        <div class="pagination">
+            <button v-for="page in 10" :key="page">{{page}}</button>
+        </div>
+        <div v-if="load">load</div>
+        <div v-else class="productContainer">
+            <div v-for="(item, index) in product" :key="item.id">
+                <p>{{item.title}}</p>
+                <img :src="item.image" v-bind:alt="item.title">
+                <p>{{item.price}}元</p>
+                <div>
+                    <button v-on:click="reduceCount(index)">-</button>
+                    <input type="number" min="0" v-model="count[index]">
+                    <button @click="addCount(index, 1)">+</button>
+                </div>
+            </div>
+            <p>總計：{{total}}元</p> 
+        </div>
+    </div>
+    <script src="https://unpkg.com/vue@next"></script>
+    <script>
+        Vue.createApp({
+            data(){
+                return {
+                    load: false, 
+                    product: [],
+                    count: [],
+                    total: 0
+                }
+            },
+            created() { //created: Vue實體被建立完
+                this.getResource()
+            },
+            mounted() { //mounted: 渲染完
+            },
+            methods:{
+                getResource(){
+                    this.load = true
+                    fetch('https://fakestoreapi.com/products')
+                    .then(res=>res.json())
+                    .then(json=>{
+                        this.product = json
+                        //初始化商品數量
+                        for ( item in this.product) {
+                            this.count.push(0)
+                        }
+                        this.load = false
+                    })
+                },
+                addCount(index){
+                    this.count[index] += 1
+                    this.sumTotal()
+                },
+                reduceCount(index){
+                    if(this.count[index] <= 0) return
+                    this.count[index] -= 1
+                    this.sumTotal()
+                },
+                sumTotal(){
+                    this.total = 0
+                    // this.total += this.count[0] * this.product[0]['price']
+                    // this.total += this.count[1] * this.product[1]['price']
+                    
+                    for ( const countIndex in this.product) {
+                        // if(!this.product[countIndex]['price']) return
+                        this.total += this.count[countIndex] * this.product[countIndex]['price']
+                    }
+                    //正整數
+                    this.total = parseInt(this.total )
+                    //四捨五入小數點後第二位 -> 變成字串
+                    // this.total = this.total.toFixed(2)
+                }
+            }
+        }).mount("#app")
+    </script>
+</body>
+</html>
+<style>
+    .productContainer{
+        display: inline-flex;
+    }
+    img{
+        height: 5rem;
+    }
+</style>

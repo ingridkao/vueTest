@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>計算機2</title>
+</head>
+<body>
+    
+    <div id="app">
+        <div>
+            <ol>
+                <li>把按鈕先做出來</li>
+                <li>按鈕按的數字或.透過keyin組起來</li>
+                <li>加減乘除、等於按鈕</li>
+                <li>按鈕可以連續計算</li>
+            </ol>
+            <div class="keyin">{{cache}} {{operator}} {{keyin}}</div>
+            <div class="result">小記：{{total}}</div>
+            <div class="result">總計：{{result}}</div>
+        </div>
+        <div class="numBtns">
+            <div class="calcBtns">
+                <button @click="equal('+')">+</button>
+                <button @click="equal('-')">-</button>
+                <button @click="equal('*')">X</button>
+                <button @click="equal('/')">/</button>
+                <button @click="compute">=</button>
+            </div>
+            <button v-for="num in 9" :key="num" @click="keyNumber(num)">{{num}}</button>
+            <button @click="clear">AC</button>
+            <button @click="keyNumber(0)">0</button>
+            <button @click="keyDote">.</button>
+        </div>
+    </div>
+    <script src="https://unpkg.com/vue@next"></script>
+    <script>
+        Vue.createApp({
+            data(){
+                return {
+                    keyin: '',
+                    cache: null,
+                    result: 0,
+                    operator: '',
+                    total: 0,
+                }
+            },
+            methods: {
+                keyNumber(number){
+                    if (this.keyin === '0' && number === 0) return //如果keyin初始值為0則輸入number0不繼續下去
+                    this.keyin += number.toString() // 為了二位數以上數值輸入
+                },
+                keyDote(){
+                    if (this.keyin.includes('.')) return //如果已經有小數點就不繼續
+                    this.keyin += '.'
+                },
+                equal(operator){
+                    this.operator = operator
+                    //暫存前一輸入數字，有數值轉換成浮點數，沒有值為0
+                    this.cache = this.keyin? parseFloat(this.keyin): 0
+
+                    //清除輸入
+                    this.keyin = ''
+                },
+                compute(){
+                    if(this.cache === null)return //有前一數字才進行計算
+                    const Keyin = this.keyin? parseFloat(this.keyin): 0
+                    switch (this.operator) {
+                        case '+':
+                            this.total = this.cache + Keyin
+                            break;
+                        case '-':
+                            this.total = this.cache - Keyin
+                            break;
+                        case '*':
+                            this.total = this.cache * Keyin
+                            break;
+                        case '/':
+                            this.total = this.cache / Keyin
+                            break;
+                        default:
+                            break;
+                    }
+                },
+                clear(){
+                    this.keyin = ''
+                    this.cache = null
+                    this.total = 0
+                    this.result = 0
+                    this.operator = ''
+                }
+            },
+        }).mount("#app")
+    </script>
+</body>
+</html>
+<style>
+#app{
+    display: inline-flex;
+}
+.numBtns{
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    width: 12rem;
+}
+
+button{
+    
+    border-radius: 50%;
+    cursor: pointer;
+    background-color: #eee;
+    box-shadow: -6px -6px 9px 0px white, 6px 6px 9px rgba(0, 0, 0, 0.4);
+}
+button:hover{
+    background-color: #999;
+}
+.numBtns button{
+    width: 3rem;
+    height: 3rem;
+    margin: .25rem;
+    font-size: 1.5rem;
+}
+.calcBtns{
+    display: inline-flex;
+    width: 100%;
+    padding: .5rem;
+}
+.calcBtns button{
+    width: 2rem;
+    height: 2rem;
+    margin: .1rem;
+    font-size: 1rem;
+}
+.keyin{
+    height: 1.5rem;
+    background-color: #ddd;
+}
+</style>
