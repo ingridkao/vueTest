@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1</title>
+</head>
+<body>
+    <div id="app">
+        <form 
+            action="" 
+        >
+            <div class="avatar" 
+                @mouseover="formHover = true" 
+                @mouseleave="formHover = false"
+                :style="{
+                    background: activeColor? activeColor: '#ddd'
+            }">
+                <div class="head" :style="{
+                    left: formHover? '1.5rem': '1rem'
+                }"></div>
+                <div class="body"></div>
+            </div>
+            <label for="">email</label>
+            <input type="email" v-model="email">
+            <br/>
+            <label for="">name</label>
+            <input type="text" v-model.trim="name">
+            1{{name}}1
+            <div>
+                <label for="">喜歡喝紅酒</label>
+                <input type="checkbox" name="drink" value="紅酒" v-model="drink">
+                <label for="">喜歡喝燒酒</label>
+                <input type="checkbox" name="drink" value="燒酒" v-model="drink">
+                {{drink}}
+            </div>
+            <div>
+                <input type="radio" id="taipei" name="location" value="taipei" v-model="location">
+                <label for="taipei">taipeu</label>
+                <input type="radio" id="hsinchu" name="location" value="hsinchu" v-model="location">
+                <label for="hsinchu">hsinchu</label>
+                {{location}}
+            </div>
+            <label for="food">food</label>
+            <select name="food" id="food" v-model="food">
+                <option disabled value="">请选择</option>
+                <option value="pig">🐷</option>
+                <option value="beef">🐮</option>
+            </select>
+            {{food}}
+            <div>
+                <input type="color" id="head" name="head" v-model="activeColor"
+                value="">
+                <label for="head">Head</label>
+                {{activeColor}}
+            </div>
+            <div>
+                {{date}}
+                <label for="start">Start date:</label>
+                <input type="date" id="start" name="trip-start"
+                       v-model="date"
+                       min="2022-01-01" max="2022-12-31">
+            </div>
+        </form>
+    </div>
+    <script src="https://unpkg.com/vue@next"></script>
+    <script>
+        //新增一個應用application→建立Vue實體(instance)
+        Vue.createApp({
+            data(){
+                return {
+                    formHover: false,
+                    email: '',
+                    name: '',
+                    drink: [],
+                    location: '',
+                    food: '',
+                    activeColorcolor: '',
+                    date: ''
+                }
+            }
+        }).mount("#app")//並掛載(mount)在網頁結點上(id="app")
+    </script>
+</body>
+</html>
+<style>
+    .avatar{
+        position: relative;
+        width: 4rem;
+        height: 4rem;
+        background: #111;
+        border-radius: 50%;
+        border: 2px solid #111;
+        overflow: hidden;
+    }
+    .avatar .head{
+        position: absolute;
+        top: .5rem;
+        left: 1.5rem;
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+        background-color: #fff;
+    }
+    .avatar .body{
+        position: absolute;
+        bottom: -1rem;
+        left: 0.5rem;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        background-color: #fff;
+    }
+</style>

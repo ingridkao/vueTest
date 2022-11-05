@@ -64,26 +64,22 @@
 					return cache
 				},
 				total(){
-					if(this.product.length> 0){
-						let total = 0
-						for ( const countIndex in this.product) {
-							total += this.count[countIndex] * this.product[countIndex]['price']
-						}
-						return parseInt(total )
-					}else{
-						return 0
+					let total = 0
+					for ( const countIndex in this.product) {
+						total += this.count[countIndex] * this.product[countIndex]['price']
 					}
+					return parseInt(total)
 				}
 			},
 			watch:{
 				//監聽data或computed
 				total: {
 					handler: function(newVal, oldVal) {
-						console.log(oldVal);
-						console.log(newVal);
-					},
-					deep: true
-				},
+						if(newVal> 1000){
+							alert('你要餓死了')
+						}
+					}
+				}
 			},
             methods:{
 				parsePrice(price){
