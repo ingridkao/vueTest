@@ -8,11 +8,13 @@
 </head>
 <body>
     <div id="app">
-        <!-- 變數 in 物件/陣列 -->
-        <div class="pagination">
-            <button v-for="page in 10" :key="page">{{page}}</button>
-        </div>
-        <div v-if="load">load</div>
+		<header>
+			search: <input type="text" v-model="search"><br>
+			<!-- {{search}} -->
+			篩選出大於: $<input type="number" v-model="min">-<input type="number" v-model="max">$的商品
+		</header>
+		<p>總計：{{total}}元</p> 
+        <div v-if="load">loading...</div>
         <div v-else class="productContainer">
             <div v-for="(item, index) in product" :key="item.id">
                 <p>{{item.title}}</p>
@@ -24,7 +26,6 @@
                     <button @click="addCount(index, 1)">+</button>
                 </div>
             </div>
-            <p>總計：{{total}}元</p> 
         </div>
     </div>
     <script src="https://unpkg.com/vue@next"></script>
@@ -32,24 +33,44 @@
         Vue.createApp({
             data(){
                 return {
-                    load: false, 
-                    product: [],
+                    load: false,
+					source: [],
+                    // product: [],
                     count: [],
-                    total: 0
+                    total: 0,
+					search: '',
+					min: 0,
+					max: 0
                 }
             },
-            created() { //created: Vue實體被建立完
-                this.getResource()
-            },
-            mounted() { //mounted: 渲染完
-            },
+			computed:{
+				product(){
+					let cache = this.source
+					if(this.min > 0){//篩選最小價錢
+						cache = cache.filter(item=>{
+							return item.price > this.min
+						})
+					}
+					if(this.max > 0){//篩選最大價錢
+						cache = cache.filter(item=>{
+							return item.price < this.max
+						})
+					}
+					if(this.search !== ''){//篩選相符標題
+						cache = cache.filter(item=>{
+							return item.title.includes(this.search)
+						})
+					}
+					return cache
+				}
+			},
             methods:{
                 getResource(){
                     this.load = true
-                    fetch('https://fakestoreapi.com/products')
+                    fetch('https://fakestoreapi.com/products/')
                     .then(res=>res.json())
                     .then(json=>{
-                        this.product = json
+                        this.source = json
                         //初始化商品數量
                         for ( item in this.product) {
                             this.count.push(0)
@@ -80,7 +101,10 @@
                     //四捨五入小數點後第二位 -> 變成字串
                     // this.total = this.total.toFixed(2)
                 }
-            }
+            },
+			created() { //created: Vue實體被建立完
+                this.getResource()
+            },
         }).mount("#app")
     </script>
 </body>
