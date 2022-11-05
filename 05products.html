@@ -11,7 +11,7 @@
 		<header>
 			search: <input type="text" v-model="search"><br>
 			<!-- {{search}} -->
-			篩選出大於: $<input type="number" v-model="min">-<input type="number" v-model="max">$的商品
+			$<input type="number" v-model="min">-<input type="number" v-model="max">
 		</header>
 		<p>總計：{{total}}元</p> 
         <div v-if="load">loading...</div>
@@ -19,7 +19,7 @@
             <div v-for="(item, index) in product" :key="item.id">
                 <p>{{item.title}}</p>
                 <img :src="item.image" v-bind:alt="item.title">
-                <p>{{item.price}}元</p>
+                <p>{{parsePrice(item.price)}}元</p>
                 <div>
                     <button v-on:click="reduceCount(index)">-</button>
                     <input type="number" min="0" v-model="count[index]">
@@ -37,7 +37,7 @@
 					source: [],
                     // product: [],
                     count: [],
-                    total: 0,
+                    // total: 0,
 					search: '',
 					min: 0,
 					max: 0
@@ -47,7 +47,7 @@
 				product(){
 					let cache = this.source
 					if(this.min > 0){//篩選最小價錢
-						cache = cache.filter(item=>{
+						cache = cache.filter((item, index)=>{
 							return item.price > this.min
 						})
 					}
@@ -62,9 +62,33 @@
 						})
 					}
 					return cache
+				},
+				total(){
+					if(this.product.length> 0){
+						let total = 0
+						for ( const countIndex in this.product) {
+							total += this.count[countIndex] * this.product[countIndex]['price']
+						}
+						return parseInt(total )
+					}else{
+						return 0
+					}
 				}
 			},
+			watch:{
+				//監聽data或computed
+				total: {
+					handler: function(newVal, oldVal) {
+						console.log(oldVal);
+						console.log(newVal);
+					},
+					deep: true
+				},
+			},
             methods:{
+				parsePrice(price){
+					return `TWD ${price*33}`
+				},
                 getResource(){
                     this.load = true
                     fetch('https://fakestoreapi.com/products/')
@@ -80,27 +104,21 @@
                 },
                 addCount(index){
                     this.count[index] += 1
-                    this.sumTotal()
+                    // this.sumTotal()
                 },
                 reduceCount(index){
                     if(this.count[index] <= 0) return
                     this.count[index] -= 1
-                    this.sumTotal()
+                    // this.sumTotal()
                 },
-                sumTotal(){
-                    this.total = 0
-                    // this.total += this.count[0] * this.product[0]['price']
-                    // this.total += this.count[1] * this.product[1]['price']
-                    
-                    for ( const countIndex in this.product) {
-                        // if(!this.product[countIndex]['price']) return
-                        this.total += this.count[countIndex] * this.product[countIndex]['price']
-                    }
-                    //正整數
-                    this.total = parseInt(this.total )
-                    //四捨五入小數點後第二位 -> 變成字串
-                    // this.total = this.total.toFixed(2)
-                }
+                // sumTotal(){
+                //     this.total = 0
+                //     for ( const countIndex in this.product) {
+                //         this.total += this.count[countIndex] * this.product[countIndex]['price']
+                //     }
+                //     //正整數
+                //     this.total = parseInt(this.total )
+                // }
             },
 			created() { //created: Vue實體被建立完
                 this.getResource()
