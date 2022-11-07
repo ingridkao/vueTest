@@ -11,15 +11,24 @@
         <form 
             action="" 
         >
-            <div class="avatar" 
+            <div 
                 @mouseover="formHover = true" 
                 @mouseleave="formHover = false"
                 :style="{
-                    background: activeColor? activeColor: '#ddd'
-            }">
-                <div class="head" :style="{
-                    left: formHover? '1.5rem': '1rem'
-                }"></div>
+                    background: activeColor? activeColor: '#ddd',
+                    borderColor: formHover? 'red': 'blue',
+                }"
+                class="avatar" 
+            >
+                <div 
+                    :style="{
+                        left: formHover? '1.5rem': '1rem'
+                    }"
+                    class="head" 
+                    :class="{
+                        blackSkin: formHover
+                    }"
+                ></div>
                 <div class="body"></div>
             </div>
             <label for="">email</label>
@@ -37,11 +46,21 @@
             </div>
             <div>
                 <input type="radio" id="taipei" name="location" value="taipei" v-model="location">
-                <label for="taipei">taipeu</label>
+                <label for="taipei">taipei</label>
                 <input type="radio" id="hsinchu" name="location" value="hsinchu" v-model="location">
                 <label for="hsinchu">hsinchu</label>
                 {{location}}
             </div>
+            <!-- <div class="tab">
+                <p v-if="location === 'taipei'">taipei</p>
+                <p v-else-if="location === 'hsinchu'">hsinchu</p>
+                <p v-else>阿災</p>
+            </div> -->
+            <div class="tab" v-if="location === 'hsinchu'">hsinchu</div>
+            <div class="tab" v-else-if="location === 'taipei'">taipei</div>
+            <div class="tab" v-else>阿災</div>
+            <div class="tab" v-show="location === 'hsinchu'">show</div>
+            <hr>
             <label for="food">food</label>
             <select name="food" id="food" v-model="food">
                 <option disabled value="">请选择</option>
@@ -89,7 +108,7 @@
         position: relative;
         width: 4rem;
         height: 4rem;
-        background: #111;
+        background: #555;
         border-radius: 50%;
         border: 2px solid #111;
         overflow: hidden;
@@ -103,6 +122,9 @@
         border-radius: 50%;
         background-color: #fff;
     }
+    .head.blackSkin{
+        background-color: #111;
+    }
     .avatar .body{
         position: absolute;
         bottom: -1rem;
@@ -111,5 +133,10 @@
         height: 3rem;
         border-radius: 50%;
         background-color: #fff;
+    }
+    .tab{
+        width: 100%;
+        height: 5rem;
+        background-color: aquamarine;
     }
 </style>
