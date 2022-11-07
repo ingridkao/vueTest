@@ -9,9 +9,24 @@
 <body>
     <div>
         <p>根據六角youtube教學，不過這一年firebase文件有一點點變動，增加了Web v9-modular寫法</p>
-        <div id="msg"></div>
+        <div id="app">
+            <header>
+                <input type="text" v-model.trim="tempUserName" placeholder="🐢請輸入你的名字🐢">
+                <input type="text" v-model.trim="inputMsg" placeholder="請輸入訊息">
+                <button @click.enter="send">送出</button>
+            </header>
+            <div class="chartBox">
+                <div v-for="(item, key) in chartRoom" :key="key">
+                    <p>{{item.username}}</p>
+                    <p>
+                        <span>{{item.message}}</span>
+                        <span>{{item.time}}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
-
+<script src="https://unpkg.com/vue@next"></script>
 <script type="module">
     // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-app.js";
@@ -39,26 +54,63 @@
     
     // Initialize Realtime Database and get a reference to the service
     const database = getDatabase(app);
-    
+
     //產生連線
     const startRef = ref(database, 'msg');
 
-    const MsgContainer = document.getElementById('msg')
-    //監聽連線
-    onValue(startRef, (snapshot) => {
-        const data = snapshot.val();
-        MsgContainer.innerHTML = JSON.stringify(data);
-    });
+    const App = {
+        data(){
+            return {
+                tempUserName: '',
+                inputMsg: '',
+                chartRoom: {},
+            }
+        },
+        methods: {
+            send(){
+                if(this.tempUserName === '' || this.inputMsg === "") return
+                //取得hash key
+                //下面兩個寫法一樣
+                const PostKey = push(startRef).key
+                // const PostKey = push(child(ref(database), 'msg')).key
 
-    //取得hash key
-    //下面兩個寫法一樣
-    const PostKey = push(startRef).key
-    // const PostKey = push(child(ref(database), 'msg')).key
+                //寫入 PostKey及訊息
+                set(ref(database, `msg/'${PostKey}`), {
+                    username: this.tempUserName,
+                    message: this.inputMsg,
+                    time: new Date().toISOString()
+                });
+                this.tempUserName = ''
+                this.inputMsg = ''
+            }    
+        },    
+        mounted() {
+            //監聽連線
+            onValue(startRef, (snapshot) => {
+                const data = snapshot.val();
+                this.chartRoom = data
+            })
+        }
+    }
+    Vue.createApp(App).mount("#app")
 
-    //寫入 PostKey及訊息
-    set(ref(database, `msg/'${PostKey}`), {
-        message: '123'
-    });
 </script>
 </body>
 </html>
+<style>
+    .chartBox{
+        border: 1px solid #555;
+        margin-top: 1rem;
+        padding: .5rem;
+    }
+    .chartBox div{
+        border: 1px solid #555;
+        margin-bottom: .5rem;
+        padding: .5rem;
+    }
+    .chartBox p{
+        display: inline-flex;
+        justify-content: space-between;
+        width: 100%;
+    }
+</style>
