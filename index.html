@@ -7,18 +7,55 @@
     <title>Document</title>
 </head>
 <body>
-    <a href="00vue2.html">vue2新增實體</a>
-    <a href="01quick-start.html">vue3新增實體+data</a>
-    <a href="02v-model.html">v-model</a>
-    <a href="03v-for.html">v-for</a>
-    <a href="04calc1.html">計算機1：新增數字按鈕</a>
-    <a href="04calc2.html">計算機2：新增加減按鈕</a>
-    <a href="04calc3.html">計算機3：可以連續計算</a>
+    <div>
+        <p>10/29</p>
+        <a href="00vue2.html">vue2新增實體</a>
+        <a href="01quick-start.html">vue3新增實體+data</a>
+        <a href="02v-model.html">v-model</a>
+        <a href="03v-for.html">v-for</a>
+        <p>作業</p>
+        <a href="04calc1.html">計算機1：新增數字按鈕</a>
+        <a href="04calc2.html">計算機2：新增加減按鈕</a>
+        <a href="04calc3.html">計算機3：可以連續計算</a>
+    </div>
+    <div>
+        <p>11/5</p>
+        <a href="05products.html">使用fakeAPI取得商品並監聽watch訂購總數</a>
+        <a href="06register.html">表單及使用v-bind&v-if&v-on，讓資料和畫面互動</a>
+        <p>作業</p>
+        <a href="test/checkbox.html">ToDoList提示</a>
+    </div>
+    <div>
+        <p>許願池</p>
+        <a href="test/chartroom.html">聊天室firebase</a>
+    </div>
 </body>
 </html>
 <style>
+    body{
+        width: 100vw;
+        overflow: scroll;
+        display: inline-flex;
+        flex-wrap: wrap;
+        font-size: 16px;
+    }
+    body > div{
+        background: #0d304d;
+        color: #2196f3;
+        margin: .25rem;
+        padding: .25rem .5rem;
+        border-radius: .5rem;
+    }
     a{
         display: block;
         margin-bottom: .5rem;
+        margin-left: .5rem;
+        color: #ada5a2;
+    }
+    a:hover{
+        color: #ddd;
+    }
+    a:focus{
+        color: #2196f3;
     }
 </style>
