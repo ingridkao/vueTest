@@ -23,8 +23,13 @@
                         <span>{{item.time}}</span>
                     </p>
                 </div>
+                <p>連線狀況：{{status? '連線中': '斷線'}}</p>
             </div>
         </div>
+        <p>
+            下一步驟：安全規則加入
+            <a href="https://firebase.google.com/docs/database/security/get-started" target="_blank">安全規則設定</a>
+        </p>
     </div>
 <script src="https://unpkg.com/vue@next"></script>
 <script type="module">
@@ -64,32 +69,54 @@
                 tempUserName: '',
                 inputMsg: '',
                 chartRoom: {},
+                status: false
             }
         },
         methods: {
             send(){
                 if(this.tempUserName === '' || this.inputMsg === "") return
-                //取得hash key
+                //於msg之下創建一個key，並同時檢索密鑰hash key
                 //下面兩個寫法一樣
                 const PostKey = push(startRef).key
                 // const PostKey = push(child(ref(database), 'msg')).key
 
-                //寫入 PostKey及訊息
+                //寫入 PostKey及value
                 set(ref(database, `msg/'${PostKey}`), {
                     username: this.tempUserName,
                     message: this.inputMsg,
                     time: new Date().toISOString()
+                })
+                .then(() => {
+                    // Data saved successfully!
+                })
+                .catch((error) => {
+                    // The write failed...
                 });
                 this.tempUserName = ''
                 this.inputMsg = ''
-            }    
+            },
+            listenDB(){
+                //連線後監聽-每次資料庫異動都會被觸發
+                //不建議將偵聽器附加到數據庫的根目錄。
+                onValue(startRef, (snapshot) => {
+                    const data = snapshot.val();
+                    this.chartRoom = data
+                    // console.log(snapshot.numChildren()) // 這個SDK無法取得線上人數這個methods
+                })
+            }
         },    
         mounted() {
-            //監聽連線
-            onValue(startRef, (snapshot) => {
-                const data = snapshot.val();
-                this.chartRoom = data
-            })
+            //檢測連接狀態
+            const connectedRef = ref(database, ".info/connected");
+            onValue(connectedRef, (snap) => {
+                if (snap.val() === true) {
+                    this.status = true
+                    this.listenDB()
+                } else {
+                    this.status = false
+                }
+            });
+            //如果您只需要一次數據，請用get
         }
     }
     Vue.createApp(App).mount("#app")
