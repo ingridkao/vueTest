@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用iview design日曆</title>
+    <link rel="stylesheet" href="https://unpkg.com/view-ui-plus/dist/styles/viewuiplus.css">
+</head>
+<body>
+    <div id='app'>
+        <!-- 規格請看https://www.iviewui.com/view-ui-plus/component/view/calendar -->
+        <Calendar hide-type>
+            <template #month="{date, data}">
+                <Tooltip 
+                    v-if="holiday[data.day]"
+                    max-width="200" 
+                    :content="holiday[data.day]['desc']"
+                >
+                    <Badge 
+                        :status="holiday[data.day]['category']" 
+                        :text="holiday[data.day]['name']"
+                    />
+                </Tooltip>
+            </template>
+        </Calendar>
+    </div>
+    <script src="https://unpkg.com/vue@next"></script>
+    <!-- 引用iview(vue3) -->
+    <script src="https://unpkg.com/view-ui-plus"></script>
+    <!-- 用dayjs轉換格式 -->
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script>
+        const App = {
+            data() {
+                return {
+                    source: [],
+                    holiday: {},
+                }
+            },
+            methods:{
+                getResource(){
+                    // fetch('https://data.taipei/api/v1/dataset/29d9771d-c0ee-40d4-8dfb-3866b0b7adaa?scope=resourceAquire&limit=1000&offset=316')
+                    //資料來源有點麻煩沒有fiter年度，最多只能取1000筆因此先取最後1000筆
+                    //沒有開跨域，所以下載到local
+                    fetch('/assets/holiday.json')
+                    .then(res=>res.json())
+                    .then(json=>{
+                        if(!json || !json.result)return
+                        const {results} = json.result
+                        this.source = results
+                        this.parseSource()
+                    })
+                },
+                parseSource(){
+                    //整理來源資料，給予一個key讓日曆模組可以mapping
+                    this.holiday = {}
+                    this.source.map(item => {
+                        const index = dayjs(item.date, 'YYYY/MM/DD').format('YYYY-MM-DD')
+                        this.holiday[index] = {
+                            desc: item.description? item.description: item.holidaycategory,
+                            name: item.name? item.name: item.holidaycategory
+                        }
+                        if(item.holidaycategory === '補行上班日'){
+                            this.holiday[index]['category'] = "error"
+                        }else if(item.isholiday === '是'){
+                            this.holiday[index]['category'] = "processing"
+                            if(item.holidaycategory === '星期六、星期日'){
+                                this.holiday[index]['name'] = '週末'
+                            }
+                        } 
+                    })
+                }
+            },
+			created() {
+                this.getResource()
+            }
+        }
+        const app = Vue.createApp(App)
+        app.use(ViewUIPlus)
+        app.mount("#app")
+    </script>
+</body>
+</html>
