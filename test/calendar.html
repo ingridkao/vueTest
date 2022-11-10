@@ -40,6 +40,7 @@
             },
             methods:{
                 getResource(){
+                    this.holiday = {}
                     // fetch('https://data.taipei/api/v1/dataset/29d9771d-c0ee-40d4-8dfb-3866b0b7adaa?scope=resourceAquire&limit=1000&offset=316')
                     //資料來源有點麻煩沒有fiter年度，最多只能取1000筆因此先取最後1000筆
                     //沒有開跨域，所以下載到local
@@ -54,21 +55,25 @@
                 },
                 parseSource(){
                     //整理來源資料，給予一個key讓日曆模組可以mapping
-                    this.holiday = {}
+                    const holidayLoop = {}
                     this.source.map(item => {
                         const index = dayjs(item.date, 'YYYY/MM/DD').format('YYYY-MM-DD')
-                        this.holiday[index] = {
+                        holidayLoop[index] = {
                             desc: item.description? item.description: item.holidaycategory,
                             name: item.name? item.name: item.holidaycategory
                         }
                         if(item.holidaycategory === '補行上班日'){
-                            this.holiday[index]['category'] = "error"
+                            holidayLoop[index]['category'] = "error"
                         }else if(item.isholiday === '是'){
-                            this.holiday[index]['category'] = "processing"
+                            holidayLoop[index]['category'] = "processing"
                             if(item.holidaycategory === '星期六、星期日'){
-                                this.holiday[index]['name'] = '週末'
+                                holidayLoop[index]['name'] = '週末'
                             }
                         } 
+                    })
+                    //用nextTick()可以在跑完迴圈後，做一次性更新，這樣可以減少資料重複更新與不必要的計算。
+                    this.$nextTick(()=>{
+                        this.holiday = holidayLoop
                     })
                 }
             },
