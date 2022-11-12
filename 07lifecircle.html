@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生命週期</title>
+</head>
+<body>
+    <div id="app">
+		<header>
+			search: <input type="text" v-model="search"><br>
+			$<input type="number" v-model="min">-<input type="number" v-model="max">
+		</header>
+		<p>總計：{{total}}元</p> 
+        <template v-if="load">loading...</template>
+        <template v-else >
+            <div class="productContainer">
+                <div v-for="(item, index) in product" :key="item.id">
+                    <p>{{item.title}}</p>
+                    <img :src="item.image" v-bind:alt="item.title">
+                    <p>{{parsePrice(item.price)}}元</p>
+                    <div>
+                        <button v-on:click="reduceCount(index)">-</button>
+                        <input type="number" min="0" v-model="count[index]">
+                        <button @click="addCount(index, 1)">+</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+    <script src="https://unpkg.com/vue@next"></script>
+    <script>
+        Vue.createApp({
+            data(){
+                return {
+                    load: false,
+					source: [],
+                    sourceCount: 0,
+                    // product: [],
+                    count: [],
+                    // total: 0,
+					search: '',
+					min: 0,
+					max: 0,
+                }
+            },
+			computed:{
+				product(){
+					let cache = this.source
+					if(this.min > 0){//篩選最小價錢
+						cache = cache.filter((item, index)=>{
+							return item.price > this.min
+						})
+					}
+					if(this.max > 0){//篩選最大價錢
+						cache = cache.filter(item=>{
+							return item.price < this.max
+						})
+					}
+					if(this.search !== ''){//篩選相符標題
+						cache = cache.filter(item=>{
+							return item.title.includes(this.search)
+						})
+					}
+					return cache
+				},
+				total(){
+					let total = 0
+					for ( const countIndex in this.product) {
+						total += this.count[countIndex] * this.product[countIndex]['price']
+					}
+					return parseInt(total)
+				}
+			},
+			watch:{
+				//監聽data或computed
+				total: {
+					handler: function(newVal, oldVal) {
+						if(newVal> 1000){
+							alert('你要餓死了')
+						}
+					}
+				}
+			},
+            methods:{
+				parsePrice(price){
+					return `TWD ${price*33}`
+				},
+                getResource(){
+                    this.load = true
+                    fetch('https://fakestoreapi.com/products/')
+                    .then(res=>res.json())
+                    .then(json=>{
+                        this.source = json
+                        //初始化商品數量
+                        for ( item in this.product) {
+                            this.count.push(0)
+                        }
+                        this.load = false
+                        this.sourceCount = this.source.length
+                        console.log('method:'+this.sourceCount);
+                    })
+                },
+                addCount(index){
+                    this.count[index] += 1
+                    // this.sumTotal()
+                },
+                reduceCount(index){
+                    if(this.count[index] <= 0) return
+                    this.count[index] -= 1
+                    // this.sumTotal()
+                },
+            },
+			created() {
+                console.log('created:'+this.source.length);
+                // this.getResource()
+            },
+            mounted(){
+                this.getResource()
+                this.sourceCount = this.source.length
+                console.log('mounted:'+this.sourceCount);
+            },
+            beforeUnmount(){
+                alert('beforeUnmount')
+                console.log('beforeUnmount');
+            }
+        }).mount("#app")
+    </script>
+</body>
+</html>
+<style>
+    .productContainer{
+        display: inline-flex;
+    }
+    img{
+        height: 5rem;
+    }
+</style>
