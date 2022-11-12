@@ -17,7 +17,13 @@
         <template v-else >
             <div class="productContainer">
                 <div v-for="(item, index) in product" :key="item.id">
-                    <p>{{item.title}}</p>
+                    <!-- <p>{{item.title}}</p> -->
+                    <template v-if="item.rating">
+                        <!-- <p>{{item["rating"]["rate"]}}</p> -->
+                        <!-- <span v-for="count in item['rating']['rate']">{{count}}</span> -->
+                        <span v-for="count in parseInt(item['rating']['rate'])">🌟</span>
+                        <p>評論數：{{item.rating.count}}</p>
+                    </template>
                     <img :src="item.image" v-bind:alt="item.title">
                     <p>{{parsePrice(item.price)}}元</p>
                     <div>
@@ -39,7 +45,6 @@
                     sourceCount: 0,
                     // product: [],
                     count: [],
-                    // total: 0,
 					search: '',
 					min: 0,
 					max: 0,
