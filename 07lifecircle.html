@@ -7,33 +7,38 @@
     <title>生命週期</title>
 </head>
 <body>
-    <div id="app">
-		<header>
-			search: <input type="text" v-model="search"><br>
-			$<input type="number" v-model="min">-<input type="number" v-model="max">
-		</header>
-		<p>總計：{{total}}元</p> 
-        <template v-if="load">loading...</template>
-        <template v-else >
-            <div class="productContainer">
-                <div v-for="(item, index) in product" :key="item.id">
-                    <!-- <p>{{item.title}}</p> -->
-                    <template v-if="item.rating">
-                        <!-- <p>{{item["rating"]["rate"]}}</p> -->
-                        <!-- <span v-for="count in item['rating']['rate']">{{count}}</span> -->
-                        <span v-for="count in parseInt(item['rating']['rate'])">🌟</span>
-                        <p>評論數：{{item.rating.count}}</p>
-                    </template>
-                    <img :src="item.image" v-bind:alt="item.title">
-                    <p>{{parsePrice(item.price)}}元</p>
-                    <div>
-                        <button v-on:click="reduceCount(index)">-</button>
-                        <input type="number" min="0" v-model="count[index]">
-                        <button @click="addCount(index, 1)">+</button>
+    <div id="app" class="wrapper">
+        <main>
+            <header>
+                search: <input type="text" v-model="search"><br>
+                $<input type="number" v-model="min">-<input type="number" v-model="max">
+            </header>
+            <template v-if="load">loading...</template>
+            <template v-else >
+                <div class="productContainer">
+                    <div v-for="(item, index) in product" :key="item.id">
+                        <p>{{item.title}}</p>
+                        {{parseRating(item.rating)}}
+                        <img :src="item.image" v-bind:alt="item.title">
+                        <p>{{parsePrice(item.price)}}元</p>
+                        <div>
+                            <button v-on:click="reduceCount(index, item)">-</button>
+                            <input type="number" min="0" v-model="count[index]">
+                            <button @click="addCount(index, item)">+</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </template>
+            </template>
+        </main>
+        <aside>
+            訂單
+            <ul>
+                <li v-for="item in order" :key="item.id">
+                    ID{{item.id}}: {{item.count}}
+                </li>
+            </ul>
+            <p>總價：{{total}}元</p> 
+        </aside>
     </div>
     <script src="https://unpkg.com/vue@next"></script>
     <script>
@@ -43,6 +48,7 @@
                     load: false,
 					source: [],
                     sourceCount: 0,
+                    order: [],
                     // product: [],
                     count: [],
 					search: '',
@@ -89,6 +95,15 @@
 				}
 			},
             methods:{
+                parseRating(rating){
+                    if(!rating) return null
+                    let starStr = ''
+                    const star = parseInt(rating.rate)
+                    for (let index = 0; index < star; index++) {
+                        starStr += '🌟'
+                    }
+                    return `${starStr}${rating.count}`
+                },
 				parsePrice(price){
 					return `TWD ${price*33}`
 				},
@@ -104,37 +119,63 @@
                         }
                         this.load = false
                         this.sourceCount = this.source.length
-                        console.log('method:'+this.sourceCount);
+                        // console.log('method:'+this.sourceCount);
                     })
                 },
-                addCount(index){
+                addCount(index, item){
                     this.count[index] += 1
-                    // this.sumTotal()
+                    const exits = this.order.some(orderItem => orderItem.id === item.id)
+                    console.log(exits);
+                    if(exits){
+
+                    }else{
+                        this.order.push({
+                            id: item.id,
+                            title: item.title,
+                            price: item.price,
+                            count: 1
+                        })
+                    }
                 },
-                reduceCount(index){
+                reduceCount(index, item){
+                    console.log(item);
                     if(this.count[index] <= 0) return
                     this.count[index] -= 1
-                    // this.sumTotal()
+                    // this.order.splice(index, 1);
                 },
             },
 			created() {
-                console.log('created:'+this.source.length);
+                // console.log('created:'+this.source.length);
                 // this.getResource()
             },
             mounted(){
                 this.getResource()
                 this.sourceCount = this.source.length
-                console.log('mounted:'+this.sourceCount);
+                // console.log('mounted:'+this.sourceCount);
             },
             beforeUnmount(){
-                alert('beforeUnmount')
-                console.log('beforeUnmount');
+                // alert('beforeUnmount')
+                // console.log('beforeUnmount');
             }
         }).mount("#app")
     </script>
 </body>
 </html>
 <style>
+    .wrapper{
+        width: 100%;
+        height: 80vh;
+    }
+    main{
+        display: inline-block;
+        width: calc(100vw - 21rem);
+        overflow: scroll;
+    }
+    aside{
+        display: inline-block;
+        width: 20rem;
+        vertical-align: top;
+    }
     .productContainer{
         display: inline-flex;
     }
