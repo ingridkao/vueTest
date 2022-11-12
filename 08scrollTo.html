@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1</title>
+</head>
+<body>
+    <div id="app">
+        <section id="section1" ref="section1">
+            1
+            <button @click="scrollDown">👇</button>
+        </section>
+        <section id="section2" ref="section2">
+            2
+        </section>
+        <section id="section3" ref="section3">
+            3
+            <button @click="scrollTo">👆</button>
+        </section>
+    </div>
+    <script src="https://unpkg.com/vue@next"></script>
+    <script>
+        Vue.createApp({
+            data(){
+                return {}
+            },
+            methods: {
+                scrollTo(){
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    })
+                },
+                scrollDown(){
+                    // const box = document.getElementById('section2')
+                    // console.log(this.$refs);
+                    const box = this.$refs.section2
+                    // // console.log(box.getBoundingClientRect());
+                    window.scrollTo({
+                        top: box.offsetTop,
+                        behavior: "smooth"
+                    })
+                }
+            },
+        }).mount("#app")
+    </script>
+</body>
+</html>
+<style>
+    section{
+        position: relative;
+        height: 100vh;
+        font-size: 50vh;
+    }
+    button{
+        position: absolute;
+        bottom: 3rem;
+        left: 50%;
+        width: 3rem;
+        height: 3rem;
+        font-size: 3rem;
+        background-color: transparent;
+        outline: none;
+        border: none;
+    }
+    #section1{
+        background-color: #222;
+    }
+    #section2{
+        background-color: #555;
+    }
+    #section3{
+        background-color: #999;
+    }
+
+</style>

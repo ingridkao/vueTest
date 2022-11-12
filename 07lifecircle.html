@@ -130,6 +130,7 @@
                     // 如果訂單清單裡有這個商品，就將同id的商品增加數量count
                     // 取訂單商品的順序
                     const prodIndex = this.order.findIndex(orderItem => {
+                        console.log(orderItem)
                         return orderItem.id === item.id
                     })
                     if(prodIndex >= 0 ){
@@ -164,9 +165,12 @@
                     this.setStorage()
                 },
                 getStorage(){
-
+                    let data = localStorage.getItem('turleShop')
+                    data = JSON.parse(data)
+                    this.order = data? data: []
                 },
                 setStorage(){
+                    //陣列或物件轉字串
                     const data = JSON.stringify(this.order)
                     localStorage.setItem('turleShop', data)
                 }
@@ -177,6 +181,7 @@
             },
             mounted(){
                 this.getResource()
+                this.getStorage()
                 this.sourceCount = this.source.length
                 // console.log('mounted:'+this.sourceCount);
             },
