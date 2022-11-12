@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/view-ui-plus/dist/styles/viewuiplus.css">
+</head>
+<body>
+    <div id="app">
+        <Poptip 
+            trigger="hover" 
+            title="Title" 
+            content="wefesfsvsf"
+        >
+            <Button>Hover</Button>
+        </Poptip>
+        <Carousel v-model="carousel" loop>
+            <CarouselItem>
+                <div class="demo-carousel">1</div>
+            </CarouselItem>
+            <CarouselItem>
+                <div class="demo-carousel">2</div>
+            </CarouselItem>
+            <CarouselItem>
+                <div class="demo-carousel">3</div>
+            </CarouselItem>
+            <CarouselItem>
+                <div class="demo-carousel">4</div>
+            </CarouselItem>
+        </Carousel>
+        {{carousel}}
+        <i-button @click="show">Click me!</i-button>
+        <Modal v-model="visible" title="Welcome">Welcome to View UI Plus</Modal>
+    </div>
+    <script src="https://unpkg.com/vue@next"></script>
+    <script type="text/javascript" src="https://unpkg.com/view-ui-plus"></script>
+    <script>
+        const app = Vue.createApp({
+            data(){
+                return {
+                    visible: false,
+                    carousel: 1
+                }
+            },
+            methods: {
+                show(){
+                    this.visible = true;
+                }
+            },
+        })
+        //use ViewUIPlus
+        app.use(ViewUIPlus);
+        app.mount("#app")
+    </script>
+</body>
+</html>
+<style>
+    .ivu-carousel-track{
+        width: 100vw !important;
+    }
+    .demo-carousel{
+        width: 100vw;
+        background-color: #444;
+    }
+</style>
