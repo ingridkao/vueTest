@@ -124,11 +124,22 @@
                 },
                 addCount(index, item){
                     this.count[index] += 1
-                    const exits = this.order.some(orderItem => orderItem.id === item.id)
-                    console.log(exits);
+                    const exits = this.order.some(orderItem => {
+                        // 訂單裡面有沒有(orderItem)存在新增的商品(item)
+                        return orderItem.id === item.id
+                    })
                     if(exits){
-
+                        //如果訂單清單裡有這個商品，就將同id的商品增加數量count
+                        // 取訂單商品的順序
+                        const prodIndex = this.order.findIndex(orderItem => {
+                            return orderItem.id === item.id
+                        })
+                        // this.order[prodIndex]['count'] = this.order[prodIndex]['count'] + 1 
+                        // console.log(this.order[prodIndex]);
+                        // 將訂單商品數量+1
+                        this.order[prodIndex]['count'] += 1 
                     }else{
+                        //如果訂單清單裡沒有這個商品，就新增一個訂單商品
                         this.order.push({
                             id: item.id,
                             title: item.title,
