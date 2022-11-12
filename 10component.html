@@ -8,11 +8,38 @@
 </head>
 <body>
     <div id="app">
+        <!-- 
+            要注意兩件事：
+            1. 在這邊自訂component的tag要前後包起來，不可以寫<layout :text="'測試'"/>
+            2. 要在用單引號把字串傳進去囧 
+        -->
+        <layout :text="'我是header'"></layout>
+        <text-box :text="1213213123"></text-box>
+        <text-box :text="'可以用很多個'"></text-box>
+        <layout :text="'我是FOOTER'"></layout>
     </div>
     <script src="https://unpkg.com/vue@next"></script>
     <script>
         const app = Vue.createApp({
-
+            components: {
+                //可以設定多個，key是組件名稱value是設定
+		        'layout': {
+                    props:['text'],
+                    template: `
+                        <p>{{text}}</p>     
+                    `
+                }
+            }
+        })
+        //可以設定多個，key是組件名稱value是設定
+        app.component('text-box',{
+            props:['text'],
+            template: `
+                <div>
+                    <h6>標題</h6>
+                    <p>內容{{text}}</p>     
+                <div>
+            `
         })
         app.mount("#app")
     </script>

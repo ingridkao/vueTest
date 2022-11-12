@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1</title>
+</head>
+<body>
+    <div id="app">
+        <div class="listWrapper">
+            <header>
+                <h5>Users</h5>
+                search: <input type="text" v-model.lazy="search"><br>
+            </header>
+            <main v-if="load">loading...</main>
+            <main v-else class="sourceWrapper">
+                <div 
+                    v-for="(item, index) in users" 
+                    :key="item.id"
+                    @click="getInfo(item)"
+                >
+                    <span class="imgCircle">
+                        <img :src="item.image" v-bind:alt="item.firstName">
+                    </span>
+                    <span>
+                        {{item.firstName}} {{item.lastName}}
+                    </span>
+                </div>
+            </main>
+        </div>
+        <div class="infoWrapper">
+            <header>
+                <span class="imgCircle">
+                    <img v-if="info.id" :src="info.image" v-bind:alt="info.firstName">
+                </span>
+                <template v-if="info.id">
+                    <h5>
+                        {{info.firstName}} {{info.lastName}}
+                    </h5>
+                    <p>{{info.birthDate}}</p>
+                </template>
+            </header>
+            <main v-if="info.id">
+                <div>
+                    <h6>domain</h6>
+                    <p>{{info.domain}}</p>
+                </div>
+                <div>
+                    <h6>email</h6>
+                    <p>{{info.email}}</p>
+                </div>
+                <div>
+                    <h6>phone</h6>
+                    <p>{{info.phone}}</p>
+                </div>
+                <button v-if="checkLikeExist(info.id)" @click="reduseLike">移除觀察</button>
+                <button v-else @click="addLike">❤️加入觀察</button>
+            </main>
+            <footer v-if="like.length > 0">
+                觀察數量：{{like.length}}
+            </footer>
+        </div>
+    </div>
+    <script src="https://unpkg.com/vue@next"></script>
+    <script>
+        const initInfo = {
+            "firstName": "-",
+            "lastName": "-",
+        }
+        Vue.createApp({
+            data(){
+                return {
+                    load: false,
+					source: [],
+                    info: initInfo,
+                    like: [],
+					search: '',
+                }
+            },
+            computed:{
+                users(){
+                    if(this.search == '')return this.source
+                    this.info = {}
+                    return this.source.filter(item => {
+                        return item.firstName.includes(this.search) || item.lastName.includes(this.search)
+                    })
+                }
+            },
+            methods:{
+                getResource(){
+                    this.load = true
+                    fetch('https://dummyjson.com/users')
+                    .then(res=>res.json())
+                    .then(json=>{
+                        //需要確認response格式
+                        this.source = json.users
+                        this.load = false
+                    })
+                },
+                getInfo(item){
+                    this.info = item
+                },
+                checkLikeExist(id){
+                    //判斷觀察清單中有沒有吻合
+                    return this.like.some(item => item.id === id)
+                },
+                addLike(){
+                    this.like.push(this.info)
+                },
+                reduseLike(){
+                    // 上課講的方式
+                    // const infoIndex = this.like.findIndex(item => item.id === this.info.id)
+                    // this.like.splice(infoIndex, 1)
+                    // 方法二： 將不是『移除的user』變成新的觀察清單
+                    this.like = this.like.filter(item => item.id !== this.info.id)
+                }
+            },
+			created() {
+                this.getResource()
+            },
+        }).mount("#app")
+    </script>
+</body>
+</html>
+<style>
+    /* commom */
+    body{
+        margin: 0;
+        padding: 0;
+        font-family: monospace, emoji;
+    }
+    img{
+        height: 100%;
+    }
+    main{
+        overflow-y: scroll;
+    }
+    header{
+        padding: 1rem;
+    }
+    h5{
+        margin: .5rem;
+        color: #333;
+        font-size: 1.5rem;
+    }
+    h6{
+        margin: 0;
+        color: #777;
+        font-size: .75rem;
+    }
+    p, span{
+        display: inline-block;
+        vertical-align: middle;
+        color: #333;
+        font-weight: bold;
+        font-size: 1rem;
+        margin: .25rem;
+    }
+    button{
+        display: block;
+        margin: .5rem 0;
+        border-radius: .5rem;
+        cursor: pointer;
+    }
+    .imgCircle{
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid #fff;
+        background-color: #ddd;
+    }
+
+    #app{
+        display: inline-flex;
+        flex-wrap: wrap;
+        background-color: #f2f2f2;
+        width: 100vw;
+    }
+    .listWrapper{
+        flex-basis: calc(100% - 20rem);
+    }
+    .listWrapper header{
+        height: 6rem;
+    }
+    .listWrapper main{
+        height: calc(100vh - 6rem);
+    }
+    .sourceWrapper{
+        display: inline-flex;
+        flex-wrap: wrap;
+    }
+    .sourceWrapper > div{
+        flex-basis: 15rem;
+        padding: .5rem;
+        cursor: pointer;
+    }
+    .sourceWrapper .imgCircle{
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .infoWrapper {
+        flex-basis: 20rem;
+    }
+    .infoWrapper header{
+        background-color: #555;
+        text-align: center; 
+    }
+    .infoWrapper header h5, .infoWrapper header p{
+        color: #fff;
+    }
+    .infoWrapper main{
+        padding: 1rem 2rem;
+    }
+    .infoWrapper footer{
+        position: absolute;
+        bottom: 0;
+    }
+    .infoWrapper .imgCircle{
+        width: 7.5rem;
+        height: 7.5rem;
+       
+    }
+</style>

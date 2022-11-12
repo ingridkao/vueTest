@@ -21,14 +21,23 @@
             <button @click="scrollTo">👆</button>
         </section>
         <div class="blockBtnBox">
-            <button v-for="item in 3" @click="scrollBlock(item)">{{item}}</button>
+            <button 
+                v-for="item in 3" 
+                :class="[
+                    `blockBtn${item}`,
+                    {active: item == target}
+                ]"
+                @click="scrollBlock(item)"
+            >{{item}}</button>
         </div>
     </div>
     <script src="https://unpkg.com/vue@next"></script>
     <script>
         Vue.createApp({
             data(){
-                return {}
+                return {
+                    target: null
+                }
             },
             methods: {
                 scrollTo(){
@@ -48,6 +57,7 @@
                     })
                 },
                 scrollBlock(block){
+                    this.target = block
                     const box = this.$refs[`section${block}`]
                     window.scrollTo({
                         top: box.offsetTop,
@@ -63,14 +73,17 @@
     #app{
         position: relative;
     }
-
     button{
+        display: block;
         width: 3rem;
         height: 3rem;
         font-size: 3rem;
         background-color: transparent;
         outline: none;
         border: none;
+    }
+    .blockBtnBox button.active{
+        color: red;
     }
     .blockBtnBox{
         position: fixed;
@@ -85,7 +98,6 @@
         height: 100vh;
         font-size: 50vh;
     }
-    button{display: block;}
     section button{
         position: absolute;
         bottom: 3rem;
