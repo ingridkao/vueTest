@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>this</title>
+</head>
+<body>
+    <div id="app" style="font-size: 10rem;">
+        {{myName}}
+    </div>
+    <script src="https://unpkg.com/vue@next"></script>
+    <script>
+        const app = Vue.createApp({
+            data(){
+                return{
+                    myName: '🐢'
+                }
+            },
+            methods:{
+                changeName(){
+                    const vm = this
+                    setTimeout(function(){
+                        console.log(vm);
+                        debugger
+                    },1000) //callback function
+                    setTimeout(()=> {
+                        console.log(this);
+                        debugger
+                    },1000) //callback function
+                },
+                error: () => {
+                    debugger
+                }
+            },
+            created() {
+                // this.changeName()
+                // this.error()
+                // debugger
+            },
+            mounted() {
+                // debugger
+            }
+        })
+        app.mount("#app")
+    </script>
+</body>
+</html>
+<style>
+
+</style>

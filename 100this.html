@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>this</title>
+</head>
+<body></body>
+<script>
+    var myName = '全🐢域'
+    function getName1(){
+	    console.log(this, this.myName); 
+        debugger
+    }
+    const getName2 = () => {
+        console.log(this, this.myName);
+        debugger
+    }
+    // getName1()
+    // getName2()
+    const obj1 = {
+        myName: '🐢',
+        getName3(){
+            console.log(this, this.myName);
+            debugger
+        },
+        getName2,
+        getName4: function(){
+            console.log(this, this.myName);
+            debugger
+        },
+        getName5: ()=> {
+            console.log(this, this.myName);
+            debugger
+        },
+        child: {
+            childName: '🐱',
+            getChildName1(){
+                console.log(this)
+                debugger
+            },
+            getChildName2:() =>{
+                console.log(this)
+                debugger
+            }
+        }
+    }
+    // obj1.getName3()
+    // obj1.getName2()
+    // obj1.getName4()
+    // obj1.getName5()
+    obj1.child.getChildName1()
+    obj1.child.getChildName2()
+</script>
+
+</html>
