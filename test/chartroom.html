@@ -128,8 +128,10 @@
             }
         },    
         mounted() {
+            //檢測localStorage有沒有名字
             const cachName = localStorage.getItem('firebase_name')
             this.tempUserName = cachName? cachName: ''
+
             //檢測連接狀態
             const connectedRef = ref(database, ".info/connected");
             onValue(connectedRef, (snap) => {
@@ -140,7 +142,6 @@
                     this.status = false
                 }
             });
-            //如果您只需要一次數據，請用get
         }
     }
     Vue.createApp(App).mount("#app")

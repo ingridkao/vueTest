@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>firebase - 動態確認登入狀態，決定要顯示登入或登出</title>
+</head>
+<body>
+    <div>
+        <p>顯示登入還是登出的判斷用vue比較好做</p>
+        <label for="email">Email</label>
+        <input type="email" name="email" id="email" placeholder="Email">
+        <label for="password">Choose password</label>
+        <input type="password" name="password" id="password" placeholder="Choose password">
+        <button id="login">Login</button>
+        <button id="resetPassword">忘記密碼</button>
+
+        <hr>
+        <h6>失敗</h6>
+        errorCode:<div id="errorCode"></div>
+        errorMessage:<div id="errorMessage"></div>
+        <hr>
+        <h6>登入成功</h6>
+        useEmail:<div id="useEmail"></div>
+        displayName:<div id="displayName"></div>
+        emailVerified:<div id="emailVerified"></div>
+        createdAt:<div id="createdAt"></div>
+        lastLoginAt:<div id="lastLoginAt"></div>
+        photo:<div id="photoURL"></div>
+    </div>
+    <div>
+        登出
+        <button id="logout">Logout</button>
+        
+    </div>
+    <footer>
+        如果有全域寫應用可以用動態觀察者的方式讀取用戶數據 -> onAuthStateChanged
+    </footer>
+<script src="https://unpkg.com/vue@next"></script>
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-analytics.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+    import { getAuth, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-auth.js"
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+        apiKey: "AIzaSyB1otzmT1lxBXndWOD66vGJ5VkxcbbF0K8",
+        authDomain: "chatroom-a5cfd.firebaseapp.com",
+        projectId: "chatroom-a5cfd",
+        storageBucket: "chatroom-a5cfd.appspot.com",
+        messagingSenderId: "731065234859",
+        appId: "1:731065234859:web:f072567e4aedf676758eee",
+        measurementId: "G-ZZ49P8VPV5",
+        databaseURL: "https://chatroom-a5cfd-default-rtdb.asia-southeast1.firebasedatabase.app/"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    
+    // Initialize Firebase Authentication and get a reference to the service
+    const auth = getAuth(app);
+
+    let existUser = null
+    //可以使用currentUser屬性獲取當前登錄的用戶。如果用戶未登錄，則currentUser為null：測了一下這個方法有可能失效
+    // existUser = auth.currentUser;
+    // console.log(existUser);
+    //或用onAuthStateChanged獲取當前登錄的用戶。如果用戶未登錄，則existUser為null：
+    onAuthStateChanged(auth, (existUser) => {
+        console.log(existUser);
+        if (existUser) {
+            // User is signed in, see docs for a list of available properties
+            // https://firebase.google.com/docs/reference/js/firebase.User
+            updateUserInfo(existUser)
+            // const uid = existUser.uid;
+        } else {
+            // User is signed out
+        }
+    });
+
+    const loginUser = () => {
+        const email = document.getElementById('email').value
+        const password = document.getElementById('password').value
+        if(email === '' || password === '')return
+        signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            // Signed in 
+            const user = userCredential.user;
+            updateUserInfo(user)
+            cleanErrorInput()
+        })
+        .catch((error) => {
+            errorPublish(error)
+            cleanUserInfo()
+        });
+    }
+
+    const updateUserInfo = (user) => {
+        document.getElementById('useEmail').innerText = user.email
+        document.getElementById('emailVerified').innerText = user.emailVerified
+        document.getElementById('createdAt').innerText = new Date(parseInt(user.metadata.createdAt)).toISOString()
+        document.getElementById('lastLoginAt').innerText = new Date(parseInt(user.metadata.lastLoginAt)).toISOString()
+        // 官方說以下要小心怕被XSS攻擊(塞髒東西到字串或url中)
+        document.getElementById('photoURL').innerText = user.photoURL
+        document.getElementById('displayName').innerText = user.displayName
+    }
+
+    const logoutUser = () => {
+        const useEmail = document.getElementById('useEmail').innerHTML
+        if(useEmail === '')return
+        signOut(auth)
+        .then(() => {
+            // Signed in 
+            window.alert('成功登出');
+            cleanUserInfo()
+        })
+        .catch((error) => {
+            errorPublish(error)
+        });
+    }
+
+    const resetPsw = () => {
+        const email = document.getElementById('email').value
+        if(email === '')return
+        sendPasswordResetEmail(auth, email)
+        .then(() => {
+            // Signed in 
+            window.alert('已發送信件至信箱，請按照信件說明重設密碼');
+        })
+        .catch((error) => {
+            errorPublish(error)
+        });
+    }
+
+    const errorPublish = (error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        document.getElementById('errorCode').innerText = errorCode
+        document.getElementById('errorMessage').innerText = errorMessage
+    }
+
+    const cleanUserInfo = () => {
+        document.getElementById('useEmail').innerText = ''
+        document.getElementById('emailVerified').innerText = ''
+        document.getElementById('createdAt').innerText = ''
+        document.getElementById('lastLoginAt').innerText = ''
+    }
+    const cleanErrorInput = () => {
+        document.getElementById('errorCode').innerText = ''
+        document.getElementById('errorMessage').innerText = ''
+    }
+    document.getElementById("login").addEventListener("click", loginUser);
+    document.getElementById("logout").addEventListener("click", logoutUser);
+    document.getElementById("resetPassword").addEventListener("click", resetPsw);
+</script>
+</body>
+</html>
+<style>
+    input{
+        margin: 0.25rem;
+        padding: 0.5rem;
+        font-size: 1rem;
+    }
+</style>
