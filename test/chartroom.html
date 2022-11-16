@@ -10,21 +10,37 @@
     <div>
         <p>根據六角youtube教學，不過這一年firebase文件有一點點變動，增加了Web v9-modular寫法</p>
         <div id="app">
-            <header>
-                <input type="text" v-model.trim="tempUserName" placeholder="🐢請輸入你的名字🐢">
+            <div class="chartContainer">
+                <template v-if="status">
+                    <div v-for="(item, key) in chartRoom" :key="key" class="chartBox">
+                        <p>
+                            <span>{{item.username}} : </span>
+                            <span>{{item.message}}</span>
+                        </p>
+                        <p class="subText gray">{{item.time}}</p>
+                    </div>
+                </template>
+                <template v-else>
+                    <div class="loading">
+                        Loading...
+                    </div>
+                </template>
+            </div>
+            <footer>
+                <p>連線狀況：{{status? '連線中': '斷線'}}</p>
+                <template v-if="tempUserEdit">
+                    <input type="text" v-model.trim="tempUserName" placeholder="🐢請輸入你的名字🐢" @keyup.enter="updateUserName">
+                    <span @click="updateUserName">✔️</span>
+                </template>
+                <template v-else>
+                    <span>
+                        <span>{{tempUserName}}</span>
+                        <span @click="tempUserEdit = true">✎</span>
+                    </span>
+                </template>
                 <input type="text" v-model.trim="inputMsg" placeholder="請輸入訊息">
                 <button @click.enter="send">送出</button>
-            </header>
-            <div class="chartBox">
-                <div v-for="(item, key) in chartRoom" :key="key">
-                    <p>{{item.username}}</p>
-                    <p>
-                        <span>{{item.message}}</span>
-                        <span>{{item.time}}</span>
-                    </p>
-                </div>
-                <p>連線狀況：{{status? '連線中': '斷線'}}</p>
-            </div>
+            </footer>
         </div>
         <p>
             下一步驟：安全規則加入
@@ -67,12 +83,17 @@
         data(){
             return {
                 tempUserName: '',
+                tempUserEdit: false,
                 inputMsg: '',
                 chartRoom: {},
                 status: false
             }
         },
         methods: {
+            updateUserName(){
+                localStorage.setItem('firebase_name', this.tempUserName)
+                this.tempUserEdit = false
+            },
             send(){
                 if(this.tempUserName === '' || this.inputMsg === "") return
                 //於msg之下創建一個key，並同時檢索密鑰hash key
@@ -81,10 +102,12 @@
                 // const PostKey = push(child(ref(database), 'msg')).key
 
                 //寫入 PostKey及value
+                const Now = new Date()
                 set(ref(database, `msg/'${PostKey}`), {
                     username: this.tempUserName,
                     message: this.inputMsg,
-                    time: new Date().toISOString()
+                    time: Now.toISOString(),
+                    milliseconds: Now.getTime()
                 })
                 .then(() => {
                     // Data saved successfully!
@@ -92,7 +115,6 @@
                 .catch((error) => {
                     // The write failed...
                 });
-                this.tempUserName = ''
                 this.inputMsg = ''
             },
             listenDB(){
@@ -106,6 +128,8 @@
             }
         },    
         mounted() {
+            const cachName = localStorage.getItem('firebase_name')
+            this.tempUserName = cachName? cachName: ''
             //檢測連接狀態
             const connectedRef = ref(database, ".info/connected");
             onValue(connectedRef, (snap) => {
@@ -125,19 +149,45 @@
 </body>
 </html>
 <style>
-    .chartBox{
-        border: 1px solid #555;
-        margin-top: 1rem;
-        padding: .5rem;
+    #app{
+        margin: 1rem auto;
     }
-    .chartBox div{
-        border: 1px solid #555;
-        margin-bottom: .5rem;
-        padding: .5rem;
+    span, p{
+        margin: 0 .25rem;
+        line-height: 1.8;
     }
-    .chartBox p{
+    input{
+        margin: 0.25rem;
+        padding: 0.5rem;
+        font-size: 1rem;
+    }
+    .gray{
+        color: #999;
+    }
+    .subText{
+        font-size: 80%;
+    }
+    .chartContainer{
+        width: 45rem;
+        height: calc(100vh - 12rem);
+        padding: .25rem;
+        overflow: scroll;
+    }
+    .chartContainer > div{
         display: inline-flex;
-        justify-content: space-between;
         width: 100%;
+        border-radius: 3rem;
+        border: 1px solid #555;
+    }
+    .chartBox{
+        align-items: flex-end;
+        justify-content: space-between;   
+        margin-bottom: .5rem;
+        padding: .25rem 0;
+    }
+    .chartContainer > div.loading{
+        height: 99%;
+        align-items: center;
+        justify-content: center;
     }
 </style>
