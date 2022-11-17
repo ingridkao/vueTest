@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>firebase Google 登入 - 1.新開一個 Popup 的小視窗</title>
+</head>
+<body>
+    <div>
+        <div id="login" class="hide">
+            <button id="signInGoogleBtn">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="">
+                <span>Sign in with Google</span>
+            </button>
+        </div>
+        <div id="logged" class="hide">
+            <button id="logoutBtn">Logout</button>
+        </div>
+        <hr>
+        <h6>失敗</h6>
+        errorCode:<div id="errorCode"></div>
+        errorMessage:<div id="errorMessage"></div>
+        <hr>
+        <div id="userinfo" class="hide">
+            <h6>登入成功</h6>
+            <p>useEmail:<span id="useEmail"></span></p>
+            <p>emailVerified:<span id="emailVerified"></span></p>
+            <p>createdAt:<span id="createdAt"></span></p>
+            <p>lastLoginAt:<span id="lastLoginAt"></span></p>
+            <p>
+                <span id="photoURL"></span>
+                <span id="displayName"></span>
+            </p>
+        </div>
+    </div>
+<script src="https://unpkg.com/vue@next"></script>
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-analytics.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+    import { getAuth, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-auth.js"
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+        apiKey: "AIzaSyB1otzmT1lxBXndWOD66vGJ5VkxcbbF0K8",
+        authDomain: "chatroom-a5cfd.firebaseapp.com",
+        projectId: "chatroom-a5cfd",
+        storageBucket: "chatroom-a5cfd.appspot.com",
+        messagingSenderId: "731065234859",
+        appId: "1:731065234859:web:f072567e4aedf676758eee",
+        measurementId: "G-ZZ49P8VPV5",
+        databaseURL: "https://chatroom-a5cfd-default-rtdb.asia-southeast1.firebasedatabase.app/"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    
+    // Initialize Firebase Authentication and get a reference to the service
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider()
+
+    let existUser = null
+    //可以使用currentUser屬性獲取當前登錄的用戶。如果用戶未登錄，則currentUser為null：測了一下這個方法有可能失效
+    // existUser = auth.currentUser;
+    // console.log(existUser);
+    //或用onAuthStateChanged獲取當前登錄的用戶。如果用戶未登錄，則existUser為null：
+    onAuthStateChanged(auth, (user) => {
+        existUser = user
+        if (existUser) {
+            // User is signed in, see docs for a list of available properties
+            // https://firebase.google.com/docs/reference/js/firebase.User
+            updateUserInfo(existUser)
+            // const uid = existUser.uid;
+        } else {
+            // User is signed out
+            cleanUserInfo()
+        }
+    });
+
+    const signInGoogle = () => {
+        signInWithPopup(auth, provider)
+        .then((result) => {
+            // This gives you a Google Access Token. You can use it to access the Google API.
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential.accessToken;
+            // The signed-in user info.
+            const user = result.user;
+            console.log(user);
+        }).catch((error) => {
+            errorPublish(error)
+            // The email of the user's account used.
+            const email = error.customData.email;
+            console.log(email);
+            // The AuthCredential type that was used.
+            const credential = GoogleAuthProvider.credentialFromError(error);
+        });
+    }
+
+    const updateUserInfo = (user) => {
+        document.getElementById('useEmail').innerText = user.email
+        document.getElementById('emailVerified').innerText = user.emailVerified
+        document.getElementById('createdAt').innerText = new Date(parseInt(user.metadata.createdAt)).toISOString()
+        document.getElementById('lastLoginAt').innerText = new Date(parseInt(user.metadata.lastLoginAt)).toISOString()
+        // 官方說以下要小心怕被XSS攻擊(塞髒東西到字串或url中)
+        document.getElementById('displayName').innerText = user.displayName
+        if(user.photoURL){
+            document.getElementById('photoURL').innerHTML = `<img src="${user.photoURL}"">`;
+        }
+
+        //讓div中的內容顯示出來
+        document.getElementById("login").classList.add("hide");
+        document.getElementById("logged").classList.remove("hide");
+        document.getElementById("userinfo").classList.remove("hide");
+    }
+
+    const cleanUserInfo = () => {
+        document.getElementById('useEmail').innerText = ''
+        document.getElementById('emailVerified').innerText = ''
+        document.getElementById('createdAt').innerText = ''
+        document.getElementById('lastLoginAt').innerText = ''
+
+        document.getElementById("login").classList.remove("hide");
+        document.getElementById("logged").classList.add("hide");
+        document.getElementById("userinfo").classList.add("hide");
+    }
+
+    const logoutUser = () => {
+        const useEmail = document.getElementById('useEmail').innerHTML
+        if(useEmail === '')return
+        signOut(auth)
+        .then(() => {
+            window.alert('成功登出');
+            cleanUserInfo()
+        })
+        .catch((error) => {
+            errorPublish(error)
+        });
+    }
+
+    const errorPublish = (error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        document.getElementById('errorCode').innerText = errorCode
+        document.getElementById('errorMessage').innerText = errorMessage
+    }
+
+
+    const cleanErrorInput = () => {
+        document.getElementById('errorCode').innerText = ''
+        document.getElementById('errorMessage').innerText = ''
+    }
+    document.getElementById("signInGoogleBtn").addEventListener("click", signInGoogle);
+    document.getElementById("logoutBtn").addEventListener("click", logoutUser);
+</script>
+</body>
+</html>
+<style>
+    input{
+        margin: 0.25rem;
+        padding: 0.5rem;
+        font-size: 1rem;
+    }
+    button{
+        display: inline-flex;
+        align-items: center;
+        max-width: 220px;
+        height: 40px;
+        padding: 8px 16px;
+        background: rgba(158,158,158,.2);
+        box-shadow: 0 2px 2px 0 rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 20%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+        cursor: pointer;
+    }
+    img{
+        height: 100%;
+    }
+    span{
+        margin-left: 1rem;
+    }
+    .hide{
+        display: none;
+    }
+</style>
