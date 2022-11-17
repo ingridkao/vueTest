@@ -8,35 +8,33 @@
 </head>
 <body>
     <div>
-        <p>顯示登入還是登出的判斷用vue比較好做</p>
-        <label for="email">Email</label>
-        <input type="email" name="email" id="email" placeholder="Email">
-        <label for="password">Choose password</label>
-        <input type="password" name="password" id="password" placeholder="Choose password">
-        <button id="login">Login</button>
-        <button id="resetPassword">忘記密碼</button>
-
+        <div id="login">
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" placeholder="Email">
+            <label for="password">Choose password</label>
+            <input type="password" name="password" id="password" placeholder="Choose password">
+            <button id="loginBtn">Login</button>
+            <button id="resetPswBtn">忘記密碼</button>
+        </div>
+        <div id="logged">
+            <button id="verifyBtn">驗證信箱</button>
+            <button id="logoutBtn">Logout</button>
+        </div>
         <hr>
         <h6>失敗</h6>
         errorCode:<div id="errorCode"></div>
         errorMessage:<div id="errorMessage"></div>
         <hr>
-        <h6>登入成功</h6>
-        useEmail:<div id="useEmail"></div>
-        displayName:<div id="displayName"></div>
-        emailVerified:<div id="emailVerified"></div>
-        createdAt:<div id="createdAt"></div>
-        lastLoginAt:<div id="lastLoginAt"></div>
-        photo:<div id="photoURL"></div>
+        <div id="userinfo" class="hide">
+            <h6>登入成功</h6>
+            <p>useEmail:<span id="useEmail"></span></p>
+            <p>displayName:<span id="displayName"></span></p>
+            <p>emailVerified:<span id="emailVerified"></span></p>
+            <p>createdAt:<span id="createdAt"></span></p>
+            <p>lastLoginAt:<span id="lastLoginAt"></span></p>
+            <p>photo:<span id="photoURL"></span></p>
+        </div>
     </div>
-    <div>
-        登出
-        <button id="logout">Logout</button>
-        
-    </div>
-    <footer>
-        如果有全域寫應用可以用動態觀察者的方式讀取用戶數據 -> onAuthStateChanged
-    </footer>
 <script src="https://unpkg.com/vue@next"></script>
 <script type="module">
     // Import the functions you need from the SDKs you need
@@ -44,7 +42,7 @@
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-analytics.js";
     // TODO: Add SDKs for Firebase products that you want to use
     // https://firebase.google.com/docs/web/setup#available-libraries
-    import { getAuth, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-auth.js"
+    import { getAuth, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-auth.js"
 
     // Your web app's Firebase configuration
     // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -71,8 +69,8 @@
     // existUser = auth.currentUser;
     // console.log(existUser);
     //或用onAuthStateChanged獲取當前登錄的用戶。如果用戶未登錄，則existUser為null：
-    onAuthStateChanged(auth, (existUser) => {
-        console.log(existUser);
+    onAuthStateChanged(auth, (user) => {
+        existUser = user
         if (existUser) {
             // User is signed in, see docs for a list of available properties
             // https://firebase.google.com/docs/reference/js/firebase.User
@@ -80,6 +78,7 @@
             // const uid = existUser.uid;
         } else {
             // User is signed out
+            cleanUserInfo()
         }
     });
 
@@ -108,6 +107,33 @@
         // 官方說以下要小心怕被XSS攻擊(塞髒東西到字串或url中)
         document.getElementById('photoURL').innerText = user.photoURL
         document.getElementById('displayName').innerText = user.displayName
+        
+        //讓div中的內容顯示出來
+        document.getElementById("login").classList.add("hide");
+        document.getElementById("logged").classList.remove("hide");
+        document.getElementById("userinfo").classList.remove("hide");
+    }
+
+    const cleanUserInfo = () => {
+        document.getElementById('useEmail').innerText = ''
+        document.getElementById('emailVerified').innerText = ''
+        document.getElementById('createdAt').innerText = ''
+        document.getElementById('lastLoginAt').innerText = ''
+
+        document.getElementById("login").classList.remove("hide");
+        document.getElementById("logged").classList.add("hide");
+        document.getElementById("userinfo").classList.add("hide");
+    }
+
+    const sendVerification = () => {
+        sendEmailVerification(existUser)
+        .then(() => {
+            window.alert('Email verification sent!');
+        })
+        .catch((error) => {
+            updateErrorInput(error)
+            cleanUserInfo()
+        });
     }
 
     const logoutUser = () => {
@@ -115,7 +141,6 @@
         if(useEmail === '')return
         signOut(auth)
         .then(() => {
-            // Signed in 
             window.alert('成功登出');
             cleanUserInfo()
         })
@@ -129,7 +154,6 @@
         if(email === '')return
         sendPasswordResetEmail(auth, email)
         .then(() => {
-            // Signed in 
             window.alert('已發送信件至信箱，請按照信件說明重設密碼');
         })
         .catch((error) => {
@@ -144,19 +168,15 @@
         document.getElementById('errorMessage').innerText = errorMessage
     }
 
-    const cleanUserInfo = () => {
-        document.getElementById('useEmail').innerText = ''
-        document.getElementById('emailVerified').innerText = ''
-        document.getElementById('createdAt').innerText = ''
-        document.getElementById('lastLoginAt').innerText = ''
-    }
+
     const cleanErrorInput = () => {
         document.getElementById('errorCode').innerText = ''
         document.getElementById('errorMessage').innerText = ''
     }
-    document.getElementById("login").addEventListener("click", loginUser);
-    document.getElementById("logout").addEventListener("click", logoutUser);
-    document.getElementById("resetPassword").addEventListener("click", resetPsw);
+    document.getElementById("loginBtn").addEventListener("click", loginUser);
+    document.getElementById("logoutBtn").addEventListener("click", logoutUser);
+    document.getElementById("resetPswBtn").addEventListener("click", resetPsw);
+    document.getElementById("verifyBtn").addEventListener("click", sendVerification);
 </script>
 </body>
 </html>
@@ -165,5 +185,11 @@
         margin: 0.25rem;
         padding: 0.5rem;
         font-size: 1rem;
+    }
+    span{
+        margin-left: 1rem;
+    }
+    .hide{
+        display: none;
     }
 </style>

@@ -14,17 +14,19 @@
         <input type="email" name="email" id="email" placeholder="Email">
         <label for="password">Choose password</label>
         <input type="password" name="password" id="password" placeholder="Choose password">
-        <button id="save">save</button>
+        <button id="create">create account</button>
         <hr>
         <h6>新增失敗</h6>
         errorCode:<div id="errorCode"></div>
         errorMessage:<div id="errorMessage"></div>
         <hr>
         <h6>新增成功</h6>
-        useEmail:<div id="useEmail"></div>
-        emailVerified:<div id="emailVerified"></div>
-        createdAt:<div id="createdAt"></div>
-        lastLoginAt:<div id="lastLoginAt"></div>
+        <div id="userinfo" class="hide">
+            useEmail:<div id="useEmail"></div>
+            emailVerified:<div id="emailVerified"></div>
+            createdAt:<div id="createdAt"></div>
+            lastLoginAt:<div id="lastLoginAt"></div>
+        </div>
     </div>
 <script src="https://unpkg.com/vue@next"></script>
 <script type="module">
@@ -63,32 +65,40 @@
         .then((userCredential) => {
             // Signed in 
             const user = userCredential.user;
-            // console.log(user);
             document.getElementById('useEmail').innerText = user.email
+            // 信箱有沒有被驗證
             document.getElementById('emailVerified').innerText = user.emailVerified
             document.getElementById('createdAt').innerText = new Date(parseInt(user.metadata.createdAt)).toISOString()
             document.getElementById('lastLoginAt').innerText = new Date(parseInt(user.metadata.lastLoginAt)).toISOString()
+            
+            document.getElementById("userinfo").style.display = "block";
+
             cleanErrorInput()
         })
         .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            document.getElementById('errorCode').innerText = errorCode
-            document.getElementById('errorMessage').innerText = errorMessage
+            updateErrorInput(error)
             cleanUserInfo()
         });
     }
+    
     const cleanUserInfo = () => {
+        document.getElementById("userinfo").style.display = "none";
         document.getElementById('useEmail').innerText = ''
         document.getElementById('emailVerified').innerText = ''
         document.getElementById('createdAt').innerText = ''
         document.getElementById('lastLoginAt').innerText = ''
     }
+    const updateErrorInput = (error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        document.getElementById('errorCode').innerText = errorCode
+        document.getElementById('errorMessage').innerText = errorMessage
+    }
     const cleanErrorInput = () => {
         document.getElementById('errorCode').innerText = ''
         document.getElementById('errorMessage').innerText = ''
     }
-    document.getElementById("save").addEventListener("click", createUser);
+    document.getElementById("create").addEventListener("click", createUser);
 </script>
 </body>
 </html>
@@ -97,5 +107,8 @@
         margin: 0.25rem;
         padding: 0.5rem;
         font-size: 1rem;
+    }
+    .hide{
+        display: none;
     }
 </style>
