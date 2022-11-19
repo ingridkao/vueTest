@@ -8,6 +8,21 @@
 </head>
 <body>
     <div>
+        <div id="login" class="hide">
+            <button id="signInGoogleBtn">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="">
+                <span>Sign in with Google</span>
+            </button>
+        </div>
+        <div id="userinfo" class="hide">
+            <h6>登入成功</h6>
+            <p>createdAt:<span id="createdAt"></span></p>
+            <p>lastLoginAt:<span id="lastLoginAt"></span></p>
+            <p>
+                <span id="photoURL"></span>
+                <span id="displayName"></span>
+            </p>
+        </div>
         <p>根據六角youtube教學，不過這一年firebase文件有一點點變動，增加了Web v9-modular寫法</p>
         <div id="app">
             <div class="chartContainer">
@@ -54,6 +69,7 @@
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-analytics.js";
     // TODO: Add SDKs for Firebase products that you want to use
     // https://firebase.google.com/docs/web/setup#available-libraries
+    import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-auth.js"
     import { getDatabase, ref, onValue, child, push, set } from "https://www.gstatic.com/firebasejs/9.13.0/firebase-database.js"
 
     // Your web app's Firebase configuration
@@ -72,9 +88,57 @@
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
-    
+
+    // Initialize Firebase Authentication and get a reference to the service
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider()
+
     // Initialize Realtime Database and get a reference to the service
     const database = getDatabase(app);
+
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log('User is signed in');
+            // User is signed in, see docs for a list of available properties
+            // https://firebase.google.com/docs/reference/js/firebase.User
+            updateUserInfo(user)
+        } else {
+            console.log('User is signed out');
+            cleanUserInfo()
+        }
+    });
+    const signInGoogle = () => {
+        signInWithPopup(auth, provider)
+        .then((result) => {
+            // This gives you a Google Access Token. You can use it to access the Google API.
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential.accessToken;
+            // The signed-in user info.
+            const user = result.user;
+        }).catch((error) => {
+            console.log(error);
+            cleanUserInfo()
+        });
+    }
+    const updateUserInfo = (user) => {
+        document.getElementById('createdAt').innerText = new Date(parseInt(user.metadata.createdAt)).toISOString()
+        document.getElementById('lastLoginAt').innerText = new Date(parseInt(user.metadata.lastLoginAt)).toISOString()
+        // 官方說以下要小心怕被XSS攻擊(塞髒東西到字串或url中)
+        document.getElementById('displayName').innerText = user.displayName
+        if(user.photoURL){
+            document.getElementById('photoURL').innerHTML = `<img src="${user.photoURL}"">`;
+        }
+
+        //讓div中的內容顯示出來
+        document.getElementById("login").classList.add("hide");
+        document.getElementById("userinfo").classList.remove("hide");
+    }
+    const cleanUserInfo = () => {
+        document.getElementById("logged").classList.add("hide");
+        document.getElementById("userinfo").classList.add("hide");
+    }
+    document.getElementById("signInGoogleBtn").addEventListener("click", signInGoogle);
 
     //產生連線
     const startRef = ref(database, 'msg');
@@ -190,5 +254,8 @@
         height: 99%;
         align-items: center;
         justify-content: center;
+    }
+    .hide{
+        display: none;
     }
 </style>

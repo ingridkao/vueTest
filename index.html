@@ -8,47 +8,56 @@
 </head>
 <body>
     <div>
-        <p>10/29</p>
+        <h6>10/29</h6>
         <a href="00vue2.html">vue2新增實體</a>
         <a href="01quick-start.html">vue3新增實體+data</a>
         <a href="02v-model.html">v-model</a>
         <a href="03v-for.html">v-for</a>
-        <p>作業</p>
+        <h6>作業</h6>
         <a href="04calc1.html">計算機1：新增數字按鈕</a>
         <a href="04calc2.html">計算機2：新增加減按鈕</a>
         <a href="04calc3.html">計算機3：可以連續計算</a>
     </div>
     <div>
-        <p>11/5</p>
+        <h6>11/5</h6>
         <a href="05products.html">使用fakeAPI取得商品並監聽watch訂購總數</a>
         <a href="06register.html">表單及使用v-bind&v-if&v-on，讓資料和畫面互動</a>
-        <p>作業</p>
-        <a href="test/checkbox.html">ToDoList提示</a>
+        <h6>作業提示</h6>
+        <a href="test/checkbox.html">ToDoList</a>
     </div>
     <div>
-        <p>11/12</p>
+        <h6>11/12</h6>
         <a href="07lifecircle.html">生命週期+購物車+星星</a>
         <a href="08scrollTo.html">移至section+移到最上方</a>
         <a href="09framework.html">使用UI函式庫</a>
         <a href="10component.html">component組件(元件)</a>
-        <p>作業-使用fakeAPI(這個UI做的比較ㄏ一花)</p>
-        <a href="test/APIList.html">1.取得清單、加入移除追蹤清單</a>
-        <a href="test/APISearchF2E.html">2.search name(前端)</a>
-        <a href="test/APISearchB2E.html">3.search name(API參數)</a>
-        <p>QA補充-this</p>
-        <a href="test/100this.html">this測試</a>
-        <a href="test/100thisVue.html">vue說明</a>
-        <a href="https://fluff-budget-3b7.notion.site/this-5e5b8b6929564030be4efdcfd650ffb6" target="_blank">notion圖文說明</a>
+        <h6>作業提示</h6>
+        <p>使用fakeAPI(這個UI做的比較ㄏ一花)</p>
+        <a href="test/APIList.html">1. 取得清單、加入移除追蹤清單</a>
+        <a href="test/APISearchF2E.html">2. search name(前端)</a>
+        <a href="test/APISearchB2E.html">3. search name(API參數)</a>
     </div>
     <div>
-        <p>許願池</p>
+        <h6>11/19</h6>
+    </div>
+    <div>
+        <h6>12/5</h6>
+    </div>
+    <div class="other">
+        <h6>QA補充-this</h6>
+        <p>請打開F12觀察</p>
+        <a href="https://fluff-budget-3b7.notion.site/this-5e5b8b6929564030be4efdcfd650ffb6" target="_blank">notion圖文說明</a>
+        <a href="100this.html">this的測試方式</a>
+        <a href="100thisVue.html">vue中的this</a>
+    </div>
+    <div class="other">
+        <h6>許願池</h6>
         <a href="test/chartroom.html">聊天室firebase reatime database</a>
         <a href="test/calendar.html">使用政府行政機關辦公日曆表及UI函式庫</a>
-        <hr>
     </div>
-    <div>
-        <p>firebase auth</p>
-        <p>依難易度及開發順序排列</p>
+    <div class="other">
+        <h6>firebase auth</h6>
+        <p>建議下列連結依據順序看code</p>
         <a href="firebase/authentication_email_signout.html">1. 信箱新增用戶</a>
         <a href="firebase/authentication_email_login.html">2. 信箱登入登出</a>
         <a href="firebase/authentication_email_login_check.html">3.確認登入狀態加上忘記密碼</a>
@@ -65,12 +74,24 @@
         font-size: 16px;
     }
     body > div{
-        background: #0d304d;
-        color: #2196f3;
+        background: #132635;
+        color: #ada5a2;
         margin: .25rem;
-        padding: .25rem .5rem;
+        padding: .5rem;
         border-radius: .5rem;
     }
+    h6{
+        color: #80bae6;
+        font-size: 1rem;
+        margin: 0 0 1rem 0;
+    }
+    .other{
+        background: #2a4546;
+    }
+    .other h6{
+        color: #9ad9db;
+    }
+
     a{
         display: block;
         margin-bottom: .5rem;
